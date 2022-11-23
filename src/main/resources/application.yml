@@ -1,0 +1,43 @@
+server:
+  port: 8090
+
+spring:
+  main:
+    banner-mode: off
+  application:
+    name: "Authentication Manager"
+    base-url: http://localhost:8090/
+  security:
+    auth:
+      base-url: oauth2/authorization/
+      success:
+        # Make changes to the success url as per the webapplication landing view post successful login
+        redirect-url: api/v1/authsuccess
+      failure:
+        redirect-url: api/v1/login
+    github:
+      user-email-uri: https://api.github.com/user/emails
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: 43254b4df3ac535ee97e
+            client-secret: 1d795d2ac68d0da4f757b34a68e259be7e2cbbf7
+            scope:
+              - user:email
+        # Spring security have default configuration for GitHub
+        # So if we want to override the properties like @authorization-uri etc we should provide them into provider section
+        provider:
+          github:
+            authorization-uri: https://github.com/login/oauth/authorize
+            token-uri: https://github.com/login/oauth/access_token
+            user-info-uri: https://api.github.com/user
+jwt:
+  algorithm: HS256
+  secret: E(G+KbPeShVmYq3t6w9z$C&F)J@NcQfTjWnZr4u7x!A%D*G-KaPdSgUkXp2s5v8y
+  issuer: application
+  expiryInHrs: 4
+logging:
+  level:
+    com:
+      optum: debug
