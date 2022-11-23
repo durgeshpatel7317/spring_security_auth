@@ -1,0 +1,5 @@
+version: '3.7'
+services:
+  spring_auth:
+    image: spring_auth:1.0.0
+    network_mode: host
