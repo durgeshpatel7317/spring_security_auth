@@ -2,7 +2,7 @@ package com.springsecurityauth.controllers.oauth2;
 
 import com.springsecurityauth.enums.Role;
 import com.springsecurityauth.exceptions.AuthFailureException;
-import com.springsecurityauth.service.UserDetailsManagerService;
+import com.springsecurityauth.service.UserDetailsManagerImpl;
 import com.springsecurityauth.util.JwtUtilService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,15 +60,15 @@ public class OAuth2Controller {
     private final OAuth2AuthorizedClientService authorizedClientService;
 
     @Autowired
-    private final UserDetailsManagerService userDetailsManagerService;
+    private final UserDetailsManagerImpl userDetailsManagerImpl;
 
     @Autowired
     private final JwtUtilService jwtUtilService;
 
-    public OAuth2Controller(ClientRegistrationRepository registrationRepository, OAuth2AuthorizedClientService authorizedClientService, UserDetailsManagerService userDetailsManagerService, JwtUtilService jwtUtilService) {
+    public OAuth2Controller(ClientRegistrationRepository registrationRepository, OAuth2AuthorizedClientService authorizedClientService, UserDetailsManagerImpl userDetailsManagerImpl, JwtUtilService jwtUtilService) {
         this.registrationRepository = registrationRepository;
         this.authorizedClientService = authorizedClientService;
-        this.userDetailsManagerService = userDetailsManagerService;
+        this.userDetailsManagerImpl = userDetailsManagerImpl;
         this.jwtUtilService = jwtUtilService;
     }
 
@@ -136,7 +136,7 @@ public class OAuth2Controller {
                 log.debug("Found email of the user {} ", userEmail);
 
                 if (userEmail != null) {
-                    UserDetails user = userDetailsManagerService.findOrCreateOAuth2User(userEmail, EnumSet.of(Role.USER));
+                    UserDetails user = userDetailsManagerImpl.findOrCreateOAuth2User(userEmail, EnumSet.of(Role.USER));
                     String token = this.getJwtToken(user);
 
                     response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
