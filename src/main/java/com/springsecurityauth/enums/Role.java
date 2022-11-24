@@ -8,7 +8,6 @@ import java.util.Arrays;
 public enum Role {
     ADMIN("Admin"),
     USER("User"),
-    DEFAULT("Default"),
     UNKNOWN("Unknown");
     private final String value;
 

@@ -1,7 +1,7 @@
 package com.springsecurityauth.authprovider;
 
 import com.springsecurityauth.entity.auth.UserPassAuthToken;
-import com.springsecurityauth.service.UserDetailsManagerService;
+import com.springsecurityauth.service.UserDetailsManagerImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -9,6 +9,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -20,24 +21,28 @@ public class UsernamePassAuthProvider implements AuthenticationProvider {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    private final UserDetailsManagerService userDetailsManagerService;
+    private final UserDetailsManagerImpl userDetailsManagerImpl;
 
-    public UsernamePassAuthProvider(PasswordEncoder passwordEncoder, UserDetailsManagerService userDetailsManagerService) {
+    public UsernamePassAuthProvider(PasswordEncoder passwordEncoder, UserDetailsManagerImpl userDetailsManagerImpl) {
         this.passwordEncoder = passwordEncoder;
-        this.userDetailsManagerService = userDetailsManagerService;
+        this.userDetailsManagerImpl = userDetailsManagerImpl;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        log.debug("Value of username in authentication object is {} ", authentication.getName());
+        try {
+            log.debug("Value of username in authentication object is {} ", authentication.getName());
 
-        // Load the user details by username from DB
-        UserDetails user = userDetailsManagerService.loadUserByUserName(authentication.getName());
+            // Load the user details by username from DB
+            UserDetails user = userDetailsManagerImpl.loadUserByUsername(authentication.getName());
 
-        String credential = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
+            String credential = authentication.getCredentials() == null ? "" : authentication.getCredentials().toString();
 
-        if (passwordEncoder.matches(credential, user.getPassword())) {
-            return new UserPassAuthToken(user.getUsername(), user.getPassword());
+            if (passwordEncoder.matches(credential, user.getPassword())) {
+                return new UserPassAuthToken(user.getUsername(), user.getPassword());
+            }
+        } catch (UsernameNotFoundException exception) {
+            log.error(exception.getMessage());
         }
 
         throw new BadCredentialsException("Bad credentials..!");

@@ -3,7 +3,7 @@ package com.springsecurityauth.authprovider;
 import com.springsecurityauth.entity.auth.SecretKeyAuthToken;
 import com.springsecurityauth.entity.UserSecretKey;
 import com.springsecurityauth.service.TokenServiceImpl;
-import com.springsecurityauth.service.UserDetailsManagerService;
+import com.springsecurityauth.service.UserDetailsManagerImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -25,12 +25,12 @@ public class SecretKeyAuthProvider implements AuthenticationProvider {
     private final TokenServiceImpl tokenService;
 
     @Autowired
-    private final UserDetailsManagerService userDetailsManagerService;
+    private final UserDetailsManagerImpl userDetailsManagerImpl;
 
-    public SecretKeyAuthProvider(PasswordEncoder passwordEncoder, TokenServiceImpl tokenService, UserDetailsManagerService userDetailsManagerService) {
+    public SecretKeyAuthProvider(PasswordEncoder passwordEncoder, TokenServiceImpl tokenService, UserDetailsManagerImpl userDetailsManagerImpl) {
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
-        this.userDetailsManagerService = userDetailsManagerService;
+        this.userDetailsManagerImpl = userDetailsManagerImpl;
     }
 
     @Override
@@ -47,7 +47,7 @@ public class SecretKeyAuthProvider implements AuthenticationProvider {
 
         // Load user details object from DB to get the user role for setting into the authentication obj
         if (passwordEncoder.matches(credential, userAuthTokenObj.getKey())) {
-            UserDetails userObj = userDetailsManagerService.loadUserByUserName(authentication.getName());
+            UserDetails userObj = userDetailsManagerImpl.loadUserByUsername(authentication.getName());
             return new SecretKeyAuthToken(userObj.getUsername(), null, userObj.getAuthorities());
         }
 

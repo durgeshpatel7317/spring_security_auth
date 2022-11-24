@@ -4,20 +4,30 @@ server:
 spring:
   main:
     banner-mode: off
+
   application:
     name: "Authentication Manager"
     base-url: http://localhost:8090/
+
   datasource:
     url: jdbc:mysql://localhost:3306/authusers
     username: root
     password: pass
+    connection-timeout: 20000
+    minimum-idle: 10
+    maximum-pool-size: 10
+    idle-timeout: 10000
+    auto-commit: true
+    max-lifetime: 1000
+
   jpa:
     open-in-view: false
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+
   security:
     auth:
       base-url: oauth2/authorization/
@@ -43,11 +53,13 @@ spring:
             authorization-uri: https://github.com/login/oauth/authorize
             token-uri: https://github.com/login/oauth/access_token
             user-info-uri: https://api.github.com/user
+
 jwt:
   algorithm: HS256
   secret: E(G+KbPeShVmYq3t6w9z$C&F)J@NcQfTjWnZr4u7x!A%D*G-KaPdSgUkXp2s5v8y
   issuer: application
   expiryInHrs: 4
+
 logging:
   level:
     com:

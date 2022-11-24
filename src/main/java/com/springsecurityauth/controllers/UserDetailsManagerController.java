@@ -2,7 +2,7 @@ package com.springsecurityauth.controllers;
 
 import com.springsecurityauth.entity.LoginUser;
 import com.springsecurityauth.enums.Status;
-import com.springsecurityauth.service.UserDetailsManagerService;
+import com.springsecurityauth.service.UserDetailsManagerImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,15 +23,15 @@ import java.util.Map;
 public class UserDetailsManagerController {
 
     @Autowired
-    private final UserDetailsManagerService userDetailsManagerService;
+    private final UserDetailsManagerImpl userDetailsManagerImpl;
 
-    public UserDetailsManagerController(UserDetailsManagerService userDetailsManagerService) {
-        this.userDetailsManagerService = userDetailsManagerService;
+    public UserDetailsManagerController(UserDetailsManagerImpl userDetailsManagerImpl) {
+        this.userDetailsManagerImpl = userDetailsManagerImpl;
     }
 
     @PostMapping("/user")
-    public ResponseEntity<Object> createUser(@RequestBody LoginUser user) {
-        userDetailsManagerService.createUser(user);
+    public ResponseEntity<Object> createUser(@Valid @RequestBody LoginUser user) {
+        userDetailsManagerImpl.createUser(user);
 
         Map<String, Object> response = new HashMap<>();
         response.put("status", Status.SUCCESS.getValue());
