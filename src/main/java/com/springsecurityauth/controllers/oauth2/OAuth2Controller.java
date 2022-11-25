@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.util.Collections;
@@ -139,7 +140,12 @@ public class OAuth2Controller {
                     UserDetails user = userDetailsManagerImpl.findOrCreateOAuth2User(userEmail, EnumSet.of(Role.USER));
                     String token = this.getJwtToken(user);
 
-                    response.setHeader(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                    // Creating the cookie and adding JWT token as cookie in the response
+                    Cookie cookie = new Cookie("_token", token);
+                    cookie.setPath("/");
+                    cookie.setHttpOnly(true);
+
+                    response.addCookie(cookie);
                     response.setHeader(HttpHeaders.LOCATION, appBaseUrl + successRedirectUrl);
                 } else {
                     throw new AuthFailureException("Error occurred while authentication, please try again");

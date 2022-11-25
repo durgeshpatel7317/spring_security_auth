@@ -2,7 +2,6 @@ package com.springsecurityauth.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.springsecurityauth.entity.auth.UserPassAuthToken;
-import com.springsecurityauth.entity.UserSecretKey;
 import com.springsecurityauth.enums.Status;
 import com.springsecurityauth.service.TokenServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +21,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.stream.Stream;
 
 /**
  * Can't make it a component because it has dependency on AuthenticationManager bean,
  * AuthenticationManager bean has a dependency on AuthenticationConfiguration bean which is injected during creation of SecurityFilterChain
  * So we are injecting this filter through the constructor instead of using component
- * Will be used for token based authentication mechanism
+ * Will be used for OTP based authentication mechanism
  */
 @Slf4j
 public class CustomLoginFilter extends OncePerRequestFilter {
@@ -56,16 +54,11 @@ public class CustomLoginFilter extends OncePerRequestFilter {
             // Delegate the authentication object to authentication manager
             Authentication authenticationResponse = authenticationManager.authenticate(auth);
 
-            // Generating and saving the user with secret key in DB
-            UserSecretKey userSecretKey = new UserSecretKey();
-            String secretKey = (new Random().nextInt(999) * 1000) + "";
-            userSecretKey.setKey(secretKey);
-            userSecretKey.setUsername(authenticationResponse.getName());
-            tokenService.saveUser(userSecretKey);
+            String otp = tokenService.generateOTP(authenticationResponse.getName());
 
             // Returning the key in response header for now
             // TODO: Later the key should be pushed to the user either as OTP or push notification
-            res.setHeader("token", secretKey);
+            res.setHeader("otp", otp);
         } catch (AuthenticationException exception) {
             log.error("Error occurred while authenticating the user and error is {} ", exception.getMessage());
 

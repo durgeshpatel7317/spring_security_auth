@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -39,7 +38,7 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
     public UserDetails findOrCreateOAuth2User(String username, EnumSet<Role> roles) {
         boolean useExists = this.userExists(username);
-        if(useExists) {
+        if (useExists) {
             return this.loadUserByUsername(username);
         } else {
             Set<String> authorities = roles.stream().map(Role::getValue).collect(Collectors.toSet());
@@ -51,36 +50,13 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
             // Where anyone who know the email of an OAuth2 Authenticated user may log in without password
             user.setPassword(passwordEncoder.encode(UUID.randomUUID().toString()));
             user.setAuthorities(authorities);
+            user.setEnabled(true);
 
             userDao.createUser(user);
 
             return user;
         }
     }
-
-//    public void createUser(LoginUser user) {
-//        Set<String> mappedAuth = Collections.singleton(Role.USER.getValue());
-//        if (user.getAuthorities() != null && user.getAuthorities().size() > 0) {
-//            // Validating and removing the user roles from list which does not exist in the enum
-//            mappedAuth = user.getAuthorities().stream()
-//                    .map(GrantedAuthority::getAuthority)
-//                    .map(Role::of)
-//                    .filter(role -> !role.equals(Role.UNKNOWN))
-//                    .map(Role::getValue)
-//                    .collect(Collectors.toSet());
-//            // Setting the authority after removing the unknown ones
-//        }
-//
-//        user.setAuthorities(mappedAuth);
-//        user.setPassword(passwordEncoder.encode(user.getPassword()));
-//        log.debug("Encoded password of the saved user is {} ", user.getPassword());
-//
-//        manager.createUser(user);
-//    }
-
-//    public UserDetails loadUserByUserName(String username) {
-//        return userDao.loadUserByUsername(username);
-//    }
 
     @Override
     public void createUser(UserDetails user) {
@@ -99,7 +75,7 @@ public class UserDetailsManagerImpl implements UserDetailsManager {
 
         loginUser.setAuthorities(mappedAuth);
         loginUser.setPassword(passwordEncoder.encode(user.getPassword()));
-        log.debug("Encoded password of the saved user is {} ", user.getPassword());
+        loginUser.setEnabled(true);
 
         userDao.createUser(loginUser);
     }

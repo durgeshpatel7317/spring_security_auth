@@ -16,6 +16,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 import javax.servlet.FilterChain;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -43,11 +44,11 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws IOException {
         String username = req.getHeader("username");
-        String token = req.getHeader("token");
+        String otp = req.getHeader("otp");
 
-        log.debug("Custom filter is invoked, provided token is {} ", token);
+        log.debug("Custom filter is invoked, provided otp is {} ", otp);
         try {
-            Authentication auth = new SecretKeyAuthToken(username, token);
+            Authentication auth = new SecretKeyAuthToken(username, otp);
 
             // Authentication obj returned after authentication is completed by the authentication provider
             Authentication authResponse = authenticationManager.authenticate(auth);
@@ -63,7 +64,13 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
             jwtTokenClaims.put("roles", allowedUserRoles);
 
             String authToken = jwtUtilService.generateJWTToken(username, jwtTokenClaims, username);
-            res.setHeader("Authorization", "Bearer " + authToken);
+
+            // Creating the cookie and adding JWT token as cookie in the response
+            Cookie cookie = new Cookie("_token", authToken);
+            cookie.setPath("/");
+            cookie.setHttpOnly(true);
+
+            res.addCookie(cookie);
         } catch (AuthenticationException exception) {
             log.error("Error occurred while authenticating the user and error is {} ", exception.getMessage());
 

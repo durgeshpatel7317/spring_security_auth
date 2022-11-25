@@ -12,10 +12,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -38,10 +40,10 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     public void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws IOException, ServletException {
-        String authorization = req.getHeader("Authorization");
+        Cookie cookie = WebUtils.getCookie(req, "_token");
         try {
-            if (authorization != null && authorization.startsWith("Bearer ")) {
-                String token = authorization.substring(7);
+            if (cookie != null) {
+                String token = cookie.getValue();
                 // Create the authentication object
                 Authentication auth = new AuthorizationToken(token, null);
                 // Delegate the authentication object to authentication manager

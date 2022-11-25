@@ -3,7 +3,6 @@ package com.springsecurityauth.dao;
 import com.springsecurityauth.entity.LoginUser;
 import com.springsecurityauth.repo.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -27,6 +26,6 @@ public class UserDao {
     }
 
     public boolean userExists(String username) {
-        return false;
+        return userRepository.userExists(username);
     }
 }

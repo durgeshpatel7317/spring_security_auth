@@ -1,11 +1,13 @@
 package com.springsecurityauth.entity;
 
+import com.vladmihalcea.hibernate.type.json.JsonStringType;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,7 +15,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Index;
 import javax.persistence.Table;
@@ -31,9 +32,10 @@ import java.util.stream.Collectors;
 @Table(name = "user", indexes = {
         @Index(name = "uniqueUname", columnList = "username", unique = true)
 })
+@TypeDef(name = "json", typeClass = JsonStringType.class)
 public class LoginUser implements UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     Long id;
 
     @Column(nullable = false)
@@ -47,7 +49,6 @@ public class LoginUser implements UserDetails {
             message = "Password must contain at least one upper, lower case, digit, special character and minimum 8 characters long")
     String password;
 
-    @Type(type = "boolean")
     @Column(nullable = false)
     boolean enabled;
 
